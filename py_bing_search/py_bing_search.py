@@ -1,5 +1,5 @@
-import urllib2
 import requests
+import requests.utils
 import pdb
 import time
 
@@ -34,7 +34,7 @@ class PyBingSearch(object):
         '''
         Returns a list of result objects, with the url for the next page bing search url.
         '''
-        url = self.QUERY_URL.format(urllib2.quote("'{}'".format(query)), limit, offset, format)
+        url = self.QUERY_URL.format(requests.utils.quote("'{}'".format(query)), limit, offset, format)
         r = requests.get(url, auth=("", self.api_key))
         try:
             json_results = r.json()
@@ -42,7 +42,7 @@ class PyBingSearch(object):
             if not self.safe:
                 raise PyBingException("Request returned with code %s, error msg: %s" % (r.status_code, r.text))
             else:
-                print "[ERROR] Request returned with code %s, error msg: %s. \nContinuing in 5 seconds." % (r.status_code, r.text)
+                print("[ERROR] Request returned with code %s, error msg: %s. \nContinuing in 5 seconds." % (r.status_code, r.text))
                 time.sleep(5)
         try:
             next_link = json_results['d']['__next']
@@ -50,7 +50,7 @@ class PyBingSearch(object):
             if not self.safe:
                 raise PyBingException("Couldn't extract next_link: KeyError: %s" % kE)
             else:
-                print "Couldn't extract next_link: KeyError: %s" % kE
+                print("Couldn't extract next_link: KeyError: %s" % kE)
                 time.sleep(3)
             next_link = ''
         return [Result(single_result_json) for single_result_json in json_results['d']['results']], next_link
